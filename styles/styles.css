@@ -1,0 +1,12 @@
+.canvasBg {
+  border: solid 1px red;
+  align-self: center;
+}
+
+body {
+  margin: 0;
+  height: 760px;
+  border: solid 1px blue;
+  display: flex;
+  justify-content: center;
+}
