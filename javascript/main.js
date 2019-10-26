@@ -34,8 +34,39 @@ let tileSize = $canvas.width / numberOfTiles;
 let groundLevel = tileSize - 5;
 
 // Background Constructor //
+let levelOne = ["g", "w", "g", "g", "g", "w", "w", "w", "w", "g"];
 
-let levelOne = ["x", "x", "w", "w", "w", "x", "x", "x", "x", "x", "x", "x"];
+class Obstacle {
+  constructor(x, y, type, source) {
+    (this.x = x), (this.y = y), (this.type = type), (this.source = source);
+  }
+}
+
+let water = { x: 0, y: 0, type: "water", source: "Images/map/water.png" };
+let currentLevel = [];
+let levelStart = 0;
+
+for (let i = 0; i < levelOne.length; i++) {
+  if (i == 0) {
+    currentLevel.push(
+      new Obstacle(0, 0, "ground", "Images/map/groundfull.png")
+    );
+  } else if (levelOne[i] === "w") {
+    currentLevel.push(
+      new Obstacle((levelStart += tileSize), 0, "water", "Images/map/water.png")
+    );
+  } else {
+    currentLevel.push(
+      new Obstacle(
+        (levelStart += tileSize),
+        0,
+        "ground",
+        "Images/map/groundfull.png"
+      )
+    );
+  }
+}
+
 class map {
   constructor() {
     this.col = 0;
@@ -44,23 +75,10 @@ class map {
 
   drawLevel(level) {
     let img;
-    let imageGround = "Images/map/groundfull.png";
-    let imageDirt = "Images/map/ground_dirt.png";
-    let imageWater = "Images/map/water.png";
-    let levelStart = 0;
     for (let i = 0; i < level.length; i++) {
       img = new Image();
-      if (level[i] === "x") {
-        img.src = imageGround;
-      }
-      if (level[i] === "o") {
-        img.src = imageDirt;
-      }
-      if (level[i] === "w") {
-        img.src = imageWater;
-      }
-      ctx.drawImage(img, levelStart, this.row, tileSize, tileSize);
-      levelStart += tileSize;
+      img.src = level[i].source;
+      ctx.drawImage(img, level[i].x, this.row, tileSize, tileSize);
     }
   }
 }
@@ -75,7 +93,7 @@ let hero = new player(100, 100);
 
 // Hitting the ground //
 
-function ground() {
+function groundLimit() {
   let rockBottom = $canvas.height - groundLevel;
   if (hero.positionY > rockBottom) {
     hero.positionY = rockBottom;
@@ -95,6 +113,8 @@ document.onkeydown = function(e) {
       break;
     case 39: // right arrow
       hero.positionX += hero.velocityX;
+      console.log(levelOne);
+      console.log(hero);
       break;
   }
 };
@@ -110,8 +130,8 @@ document.onkeyup = function(e) {
 
 function updateCanvas() {
   ctx.clearRect(0, 0, $canvas.width, $canvas.height);
-  level.drawLevel(levelOne);
-  ground();
+  level.drawLevel(currentLevel);
+  groundLimit();
   hero.velocityY = hero.velocityY + (hero.gravity - hero.pull);
   hero.positionY += hero.velocityY;
   hero.renderIdlePlayer();
