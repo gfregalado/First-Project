@@ -2,27 +2,41 @@
 let $canvas = document.getElementById("myCanvas");
 let ctx = $canvas.getContext("2d");
 
+let gravity = 0.3;
 class player {
   constructor(positionX, positionY) {
     this.positionX = positionX;
     this.positionY = positionY;
     this.velocityX = 7;
-    this.velocityY = 0;
+    this.velocityY = 1;
     this.frames = 0;
-    this.gravity = 0.1;
+    this.deadframes = 14;
     this.pull = 0;
+    this.jump = false;
+    this.dead = false;
   }
 
   renderIdlePlayer() {
     let sizeX = 64;
     let sizeY = sizeX;
     let img = new Image();
-    img.src = "/Images/hero/Idle/0_Reaper_Man_Idle_" + this.frames + ".png";
-    ctx.drawImage(img, this.positionX, this.positionY - 54, sizeX, sizeY);
+    if (this.dead === false)
+      img.src = "/Images/hero/Idle/0_Reaper_Man_Idle_" + this.frames + ".png";
+    ctx.drawImage(img, this.positionX, this.positionY, sizeX, sizeY);
     this.frames++;
     if (this.frames === 17) {
       this.frames = 0;
     }
+  }
+
+  renderDeadPlayer() {
+    let sizeX = 64;
+    let sizeY = sizeX;
+    let img = new Image();
+    if (this.dead === true)
+      for (let i = 0; i <= 14; i++)
+        img.src = "/Images/hero/Dying/0_Reaper_Man_Dying_" + i + ".png";
+    ctx.drawImage(img, this.positionX, this.positionY - 54, sizeX, sizeY);
   }
 }
 
@@ -34,7 +48,7 @@ let tileSize = $canvas.width / numberOfTiles;
 let groundLevel = tileSize - 5;
 
 // Background Constructor //
-let levelOne = ["g", "w", "g", "g", "g", "w", "w", "w", "w", "g"];
+let levelOne = ["g", "g", "g", "w", "g", "g", "g", "w", "w", "g"];
 
 class Obstacle {
   constructor(x, y, type, source) {
@@ -87,18 +101,29 @@ let level = new map();
 
 // Creating a Player //
 
-let hero = new player(100, 100);
+let hero = new player(100, 0);
 
 // Movement and behaviour //
 
-// Hitting the ground //
-
-function groundLimit() {
-  let rockBottom = $canvas.height - groundLevel;
-  if (hero.positionY > rockBottom) {
-    hero.positionY = rockBottom;
-    hero.velocityY = 0;
-  }
+function detectGround(posX) {
+  let actualPosition = posX + 30;
+  currentLevel.forEach(level => {
+    if (
+      actualPosition > level.x &&
+      actualPosition < level.x + tileSize &&
+      level.type === "water"
+    ) {
+      hero.dead = true;
+      hero.jump = false;
+      hero.velocityY = 0;
+    }
+    if (hero.positionY >= 215.3 && level.type === "ground") {
+      hero.jump = true;
+      hero.dead = false;
+      hero.positionY = $canvas.height - 105;
+      hero.velocityY = 0;
+    }
+  });
 }
 
 // Controls //
@@ -106,15 +131,18 @@ function groundLimit() {
 document.onkeydown = function(e) {
   switch (e.keyCode) {
     case 32: // space
-      if (hero.positionY >= $canvas.height - (tileSize - 5)) hero.pull = 0.5;
+      if (hero.jump === true && hero.positionY === 215.3) {
+        hero.pull = 0.5;
+      }
       break;
     case 37: // left arrow
       hero.positionX -= hero.velocityX;
+
       break;
     case 39: // right arrow
       hero.positionX += hero.velocityX;
-      console.log(levelOne);
       console.log(hero);
+
       break;
   }
 };
@@ -129,12 +157,15 @@ document.onkeyup = function(e) {
 // Constructor for creating Components //
 
 function updateCanvas() {
+  detectGround(hero.positionX);
   ctx.clearRect(0, 0, $canvas.width, $canvas.height);
-  level.drawLevel(currentLevel);
-  groundLimit();
-  hero.velocityY = hero.velocityY + (hero.gravity - hero.pull);
+  hero.velocityY = hero.velocityY + (gravity - hero.pull);
   hero.positionY += hero.velocityY;
+  level.drawLevel(currentLevel);
+
   hero.renderIdlePlayer();
+  hero.renderDeadPlayer();
+
   requestAnimationFrame(updateCanvas);
 }
 
