@@ -2,27 +2,35 @@
 let $canvas = document.getElementById("myCanvas");
 let ctx = $canvas.getContext("2d");
 
-let gravity = 0.3;
 class player {
   constructor(positionX, positionY) {
     this.positionX = positionX;
     this.positionY = positionY;
-    this.velocityX = 7;
-    this.velocityY = 1;
+    this.width = 64;
+    this.height = 64;
+    this.velocityX = 0;
+    this.velocityY = 0;
+    this.pull = 0;
+    this.gravity = 0.3;
+    this.friction = 0.9;
+    //animation counters and booleans//
     this.frames = 0;
     this.deadframes = 14;
-    this.pull = 0;
     this.jump = false;
     this.dead = false;
   }
 
+  playerMovement() {
+    this.velocityY += this.gravity;
+    this.velocityX *= this.friction;
+    this.velocityY *= this.friction;
+  }
+
   renderIdlePlayer() {
-    let sizeX = 64;
-    let sizeY = sizeX;
     let img = new Image();
     if (this.dead === false)
       img.src = "/Images/hero/Idle/0_Reaper_Man_Idle_" + this.frames + ".png";
-    ctx.drawImage(img, this.positionX, this.positionY, sizeX, sizeY);
+    ctx.drawImage(img, this.positionX, this.positionY, this.width, this.height);
     this.frames++;
     if (this.frames === 17) {
       this.frames = 0;
@@ -30,13 +38,18 @@ class player {
   }
 
   renderDeadPlayer() {
-    let sizeX = 64;
-    let sizeY = sizeX;
     let img = new Image();
     if (this.dead === true)
-      for (let i = 0; i <= 14; i++)
+      for (let i = 0; i <= 14; i++) {
         img.src = "/Images/hero/Dying/0_Reaper_Man_Dying_" + i + ".png";
-    ctx.drawImage(img, this.positionX, this.positionY - 54, sizeX, sizeY);
+      }
+    ctx.drawImage(
+      img,
+      this.positionX,
+      this.positionY - 54,
+      this.width,
+      this.height
+    );
   }
 }
 
@@ -56,7 +69,6 @@ class Obstacle {
   }
 }
 
-let water = { x: 0, y: 0, type: "water", source: "Images/map/water.png" };
 let currentLevel = [];
 let levelStart = 0;
 
@@ -106,17 +118,8 @@ let hero = new player(100, 0);
 // Movement and behaviour //
 
 function detectGround(posX) {
-  let actualPosition = posX + 30;
+  //let actualPosition = posX + 30;
   currentLevel.forEach(level => {
-    if (
-      actualPosition > level.x &&
-      actualPosition < level.x + tileSize &&
-      level.type === "water"
-    ) {
-      hero.dead = true;
-      hero.jump = false;
-      hero.velocityY = 0;
-    }
     if (hero.positionY >= 215.3 && level.type === "ground") {
       hero.jump = true;
       hero.dead = false;
@@ -131,38 +134,46 @@ function detectGround(posX) {
 document.onkeydown = function(e) {
   switch (e.keyCode) {
     case 32: // space
-      if (hero.jump === true && hero.positionY === 215.3) {
-        hero.pull = 0.5;
+      if (hero.jump === true) {
+        hero.velocityY -= 20;
       }
       break;
     case 37: // left arrow
-      hero.positionX -= hero.velocityX;
+      console.log("hero", hero);
+      console.log("map", currentLevel);
+      hero.velocityX -= 2;
 
       break;
     case 39: // right arrow
-      hero.positionX += hero.velocityX;
-      console.log(hero);
-
+      console.log("hero", hero);
+      hero.velocityX += 2;
       break;
   }
 };
 
-document.onkeyup = function(e) {
-  switch (e.keyCode) {
-    case 32: //space
-      hero.pull = 0;
-  }
-};
+// document.onkeyup = function(e) {
+//   switch (e.keyCode) {
+//     case 32: //space
+//       hero.velocityY -= 20;
+//   }
+// };
+
+function HeroMovement() {
+  hero.positionX += hero.velocityX;
+  hero.positionY += hero.velocityY;
+  hero.velocityY += hero.gravity;
+  hero.velocityX *= hero.friction;
+  hero.velocityY *= hero.friction;
+}
 
 // Constructor for creating Components //
 
 function updateCanvas() {
   detectGround(hero.positionX);
+  hero.playerMovement();
   ctx.clearRect(0, 0, $canvas.width, $canvas.height);
-  hero.velocityY = hero.velocityY + (gravity - hero.pull);
-  hero.positionY += hero.velocityY;
+  HeroMovement();
   level.drawLevel(currentLevel);
-
   hero.renderIdlePlayer();
   hero.renderDeadPlayer();
 
