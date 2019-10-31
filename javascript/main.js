@@ -49,13 +49,7 @@ class player {
       for (let i = 0; i <= 14; i++) {
         img.src = "/Images/hero/Dying/0_Reaper_Man_Dying_" + i + ".png";
       }
-    ctx.drawImage(
-      img,
-      this.positionX,
-      this.positionY - 54,
-      this.width,
-      this.height
-    );
+    ctx.drawImage(img, this.positionX, this.positionY, this.width, this.height);
   }
 }
 
@@ -116,6 +110,32 @@ class map {
 
 let level = new map();
 
+class sky {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  drawSky1() {
+    let img;
+    img = new Image();
+    img.src = "Images/map/cloud_1.png";
+    ctx.drawImage(img, this.x, this.y, tileSize * 2, tileSize);
+  }
+  drawSky2() {
+    let img;
+    img = new Image();
+    img.src = "Images/map/cloud_2.png";
+    ctx.drawImage(img, this.x + 175, this.y, tileSize * 2, tileSize);
+  }
+  drawSky3() {
+    let img;
+    img = new Image();
+    img.src = "Images/map/cloud_3.png";
+    ctx.drawImage(img, this.x + 900, this.y, tileSize * 2, tileSize);
+  }
+}
+
 // Map Movement //
 
 function viewFinderRight() {
@@ -129,9 +149,10 @@ function viewFinderLeft() {
     currentLevel[i].x += 30;
   }
 }
-// Creating a Player //
+// Creating a Player & World //
 
 let hero = new player(100, 0);
+let clouds = new sky(100, 50);
 
 // Movement and behaviour //
 
@@ -166,26 +187,30 @@ function checkGroundType() {
     if (
       hero.positionX >= level.x - 25 &&
       hero.positionX <= level.x + 15 &&
-      level.type === "water"
+      level.type === "water" &&
+      hero.positionY >= 214
     ) {
       hero.dead = true;
-      hero.positionY = 260;
-      this.gravity = 0.3;
-      this.friction = 0.9;
-      if (hero.positionY <= 320) hero.velocityY = 0.4;
     } else if (
       hero.positionX >= level.x - 25 &&
       hero.positionX <= level.x + 15 &&
       level.type === "ground"
     ) {
       hero.dead = false;
-    } else if (hero.positionY > 213 && hero.positionY <= 214) {
-      hero.gravity = 0;
-      hero.friction = 0;
+    } else if (hero.positionY > 210 && hero.positionY <= 215) {
+      hero.positionY = 215;
+      hero.velocityY = 0;
       hero.jump = true;
-    } else if (hero.positionY > 213 && hero.positionY <= 214) {
     }
   });
+}
+
+function Jump() {
+  hero.velocityY -= 9;
+  hero.positionY += hero.velocityY;
+  hero.velocityY += hero.gravity;
+  hero.velocityY *= hero.friction;
+  hero.jump = false;
 }
 
 // Controls //
@@ -194,11 +219,8 @@ document.onkeydown = function(e) {
   switch (e.keyCode) {
     case 32: // space
       //Jump Action //
-
       if (hero.jump === true) {
-        console.log("JUMP");
-        hero.velocityY -= 30;
-        hero.jump = false;
+        Jump();
       }
       break;
     case 37: // left arrow
@@ -206,6 +228,7 @@ document.onkeydown = function(e) {
         hero.velocityX -= 0.5;
       }
       viewFinderLeft();
+      clouds.x += 30;
       break;
     case 39: // right arrow
       if (hero.positionX > 0 && hero.positionX < 350 && hero.dead === false) {
@@ -213,7 +236,14 @@ document.onkeydown = function(e) {
       }
       //console.log(hero);
       viewFinderRight();
+      clouds.x -= 30;
       console.log(hero);
+      break;
+    case 13: // Enter Key
+      // if (hero.dead === true) {
+      //   requestAnimationFrame(updateCanvas);
+      //   hero.dead = false;
+      // }
       break;
   }
 };
@@ -231,15 +261,38 @@ function HeroMovement() {
   hero.renderDeadPlayer();
 }
 
+function heroDeath() {
+  if (hero.dead === true && hero.positionY <= 320) {
+    hero.gravity = 0.3;
+    hero.friction = 0.9;
+    ctx.fillStyle = "rgb(25, 25, 25, 0.3)";
+    ctx.fillRect(0, 0, $canvas.width, $canvas.height);
+    ctx.font = "50px sans-serif";
+    ctx.fillText("Game Over", $canvas.width - 400, $canvas.height / 2);
+    ctx.font = "15px sans-serif";
+    ctx.fillText(
+      `Press "Enter" to try again`,
+      $canvas.width - 375,
+      $canvas.height - 100
+    );
+  }
+}
 // Constructor for creating Components //
 
 function updateCanvas() {
   //detectGround(hero.positionX);
   ctx.clearRect(0, 0, $canvas.width, $canvas.height);
   level.drawLevel(currentLevel);
+  clouds.drawSky1();
+  clouds.drawSky2();
+  clouds.drawSky3();
   checkGroundType();
+  heroDeath();
   HeroMovement();
-  //jumpCheck();
+  console.log(hero.velocityX);
+  if (hero.dead === true) return;
+
+  //jumpCheck()
 
   requestAnimationFrame(updateCanvas);
 }
