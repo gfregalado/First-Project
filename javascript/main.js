@@ -153,21 +153,6 @@ class sky {
   }
 }
 
-// Map Movement //
-
-// function viewFinderRight() {
-//   if (currentLevel[0].x != 0)
-//     for (let i = 0; i < currentLevel.length; i++) {
-//       currentLevel[i].x -= 10;
-//     }
-// }
-
-// function viewFinderLeft() {
-//   if (hero.positionX >= 30)
-//     for (let i = 0; i < currentLevel.length; i++) {
-//       currentLevel[i].x += 10;
-//     }
-// }
 // Creating a Player & World //
 
 let hero = new player(100, 0);
@@ -326,14 +311,37 @@ function StartScreen() {
   clouds.drawSky1();
   clouds.drawSky2();
   clouds.drawSky3();
-  ctx.font = "20px sans-serif";
+  ctx.font = "14px 'Press Start 2P'";
   ctx.fillText(
     `Press "Enter" to Start`,
 
-    $canvas.width - 400,
+    $canvas.width - 435,
     $canvas.height / 2
   );
   requestAnimationFrame(StartScreen);
+}
+
+function endScreen() {
+  if (gameState === "restart") {
+    ctx.clearRect(0, 0, $canvas.width, $canvas.height);
+    level.drawLevel(currentLevel);
+    clouds.drawSky1();
+    clouds.drawSky2();
+    clouds.drawSky3();
+    ctx.font = "25px 'Press Start 2P'";
+    ctx.fillText(
+      `Game Over`,
+
+      $canvas.width - 390,
+      $canvas.height / 2
+    );
+    checkGroundType();
+    HeroMovement();
+    heroDeath();
+    moveGround();
+    youWin();
+    requestAnimationFrame(endScreen);
+  }
 }
 
 function updateCanvas() {
@@ -352,6 +360,8 @@ function updateHero() {
   moveGround();
   youWin();
   requestAnimationFrame(updateHero);
+  endScreen();
+  console.log(gameState);
 }
 
 requestAnimationFrame(StartScreen);
