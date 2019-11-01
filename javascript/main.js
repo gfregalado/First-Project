@@ -25,6 +25,9 @@ class player {
     this.deadframes = 14;
     this.jump = false;
     this.dead = false;
+    this.isRunningRight = false;
+    this.isRunningLeft = false;
+    this.gameRunning = false;
   }
 
   renderIdlePlayer() {
@@ -59,6 +62,7 @@ class player {
 let numberOfTiles = 10;
 let tileSize = $canvas.width / numberOfTiles;
 let groundLevel = tileSize - 5;
+let gameState = "start";
 
 // Background Constructor //
 
@@ -96,6 +100,7 @@ class map {
   constructor() {
     this.col = 0;
     this.row = 320 - groundLevel;
+    this.buttonX = 4592 - 140;
   }
 
   drawLevel(level) {
@@ -105,6 +110,18 @@ class map {
       img.src = level[i].source;
       ctx.drawImage(img, level[i].x, this.row, tileSize, tileSize);
     }
+  }
+  drawEndGameButtonOff() {
+    let imgButtonOff;
+    imgButtonOff = new Image();
+    imgButtonOff.src = "Images/map/switch_red_off.png";
+    ctx.drawImage(imgButtonOff, this.buttonX, this.row - 25, 45, 30);
+  }
+  drawEndGameButtonOn() {
+    let imgButtonOn;
+    imgButtonOn = new Image();
+    imgButtonOn.src = "Images/map/switch_red_on.png";
+    ctx.drawImage(imgButtonOn, this.buttonX, this.row - 25, 45, 30);
   }
 }
 
@@ -138,17 +155,19 @@ class sky {
 
 // Map Movement //
 
-function viewFinderRight() {
-  for (let i = 0; i < currentLevel.length; i++) {
-    currentLevel[i].x -= 30;
-  }
-}
+// function viewFinderRight() {
+//   if (currentLevel[0].x != 0)
+//     for (let i = 0; i < currentLevel.length; i++) {
+//       currentLevel[i].x -= 10;
+//     }
+// }
 
-function viewFinderLeft() {
-  for (let i = 0; i < currentLevel.length; i++) {
-    currentLevel[i].x += 30;
-  }
-}
+// function viewFinderLeft() {
+//   if (hero.positionX >= 30)
+//     for (let i = 0; i < currentLevel.length; i++) {
+//       currentLevel[i].x += 10;
+//     }
+// }
 // Creating a Player & World //
 
 let hero = new player(100, 0);
@@ -156,41 +175,15 @@ let clouds = new sky(100, 50);
 
 // Movement and behaviour //
 
-//let actualPosition = posX + 30;
-
-// function detectGround(posX) {
-//   currentLevel.forEach(level => {
-//     if (hero.positionY >= 215.3 && level.type === "ground") {
-//       hero.positionY = $canvas.height - 105;
-//       hero.velocityY = 0;
-//     }
-//   });
-// }
-
-//Jump Action //
-
-// function checkIfGrounded() {
-//   if (hero.positionY > 212 && hero.positionY <= 215) {
-//     return true;
-//   } else return false;
-// }
-
-// function jumpCheck() {
-//   let onGround = checkIfGrounded();
-//   if (onGround === true) {
-//     hero.jump = true;
-//   } else hero.jump = false;
-// }
-
 function checkGroundType() {
   currentLevel.forEach(level => {
     if (
       hero.positionX >= level.x - 25 &&
       hero.positionX <= level.x + 15 &&
       level.type === "water" &&
-      hero.positionY >= 214
+      hero.positionY >= 213
     ) {
-      hero.dead = true;
+      dyingAnimation();
     } else if (
       hero.positionX >= level.x - 25 &&
       hero.positionX <= level.x + 15 &&
@@ -204,9 +197,18 @@ function checkGroundType() {
     }
   });
 }
-
+function dyingAnimation() {
+  gameState = "restart";
+  hero.dead = true;
+  hero.jump = false;
+  hero.velocityY += 0.1;
+  hero.friction = 0.3;
+  hero.positionY += hero.velocityY;
+  hero.velocityY += hero.gravity;
+  hero.velocityY *= hero.friction;
+}
 function Jump() {
-  hero.velocityY -= 9;
+  hero.velocityY -= 17;
   hero.positionY += hero.velocityY;
   hero.velocityY += hero.gravity;
   hero.velocityY *= hero.friction;
@@ -219,36 +221,53 @@ document.onkeydown = function(e) {
   switch (e.keyCode) {
     case 32: // space
       //Jump Action //
+      console.log(level.buttonX);
+      console.log("hero position X" + hero.positionX);
+      console.log("hero position Y" + hero.positionY);
       if (hero.jump === true) {
         Jump();
       }
       break;
     case 37: // left arrow
-      if (hero.positionX > 70 && hero.positionX < 380 && hero.dead === false) {
-        hero.velocityX -= 0.5;
-      }
-      viewFinderLeft();
-      clouds.x += 30;
+      hero.isRunningLeft = true;
       break;
     case 39: // right arrow
-      if (hero.positionX > 0 && hero.positionX < 350 && hero.dead === false) {
-        hero.velocityX += 0.5;
-      }
-      //console.log(hero);
-      viewFinderRight();
-      clouds.x -= 30;
-      console.log(hero);
+      hero.isRunningRight = true;
       break;
     case 13: // Enter Key
-      // if (hero.dead === true) {
-      //   requestAnimationFrame(updateCanvas);
-      //   hero.dead = false;
-      // }
+      if (gameState === "start") {
+        requestAnimationFrame(updateCanvas);
+        requestAnimationFrame(updateHero);
+        gameState = "running";
+      } else if (gameState === "restart") {
+        ctx.clearRect(0, 0, $canvas.width, $canvas.height);
+        requestAnimationFrame(updateCanvas);
+        requestAnimationFrame(updateHero);
+      }
+
+      break;
+  }
+};
+
+document.onkeyup = e => {
+  switch (e.keyCode) {
+    case 37:
+      hero.isRunningLeft = false;
+      break;
+    case 39: // right arrow
+      hero.isRunningRight = false;
       break;
   }
 };
 
 function HeroMovement() {
+  if (hero.isRunningRight) {
+    hero.velocityX += 0.3;
+  } else if (hero.isRunningLeft) {
+    hero.velocityX -= 0.3;
+  } else {
+    hero.velocityX = 0;
+  }
   hero.positionX += hero.velocityX;
   hero.velocityX *= hero.friction;
   hero.positionY += hero.velocityY;
@@ -261,39 +280,78 @@ function HeroMovement() {
   hero.renderDeadPlayer();
 }
 
-function heroDeath() {
-  if (hero.dead === true && hero.positionY <= 320) {
-    hero.gravity = 0.3;
-    hero.friction = 0.9;
-    ctx.fillStyle = "rgb(25, 25, 25, 0.3)";
-    ctx.fillRect(0, 0, $canvas.width, $canvas.height);
-    ctx.font = "50px sans-serif";
-    ctx.fillText("Game Over", $canvas.width - 400, $canvas.height / 2);
-    ctx.font = "15px sans-serif";
-    ctx.fillText(
-      `Press "Enter" to try again`,
-      $canvas.width - 375,
-      $canvas.height - 100
-    );
+function moveGround() {
+  if (hero.dead != true && level.buttonX >= 450) {
+    for (let i = 0; i < currentLevel.length; i++) {
+      currentLevel[i].x -= 1.5;
+      clouds.x -= 0.1 / 6;
+      level.buttonX -= 0.1 / 4;
+    }
   }
 }
-// Constructor for creating Components //
+
+function youWin() {
+  if (
+    level.buttonX >= 448 &&
+    level.buttonX <= 450 &&
+    hero.positionX >= 425 &&
+    hero.positionX <= 457 &&
+    hero.positionY >= 188 &&
+    hero.positionY <= 195
+  )
+    level.drawEndGameButtonOn();
+  else level.drawEndGameButtonOff();
+}
+
+function heroDeath() {
+  if (hero.dead === true) {
+    hero.gravity = 0.3;
+    hero.friction = 0.9;
+    // ctx.fillStyle = "rgb(25, 25, 25, 0.3)";
+    // ctx.fillRect(0, 0, $canvas.width, $canvas.height);
+    // ctx.font = "50px sans-serif";
+    // ctx.fillText("Game Over", $canvas.width - 400, $canvas.height / 2);
+    // ctx.font = "15px sans-serif";
+    // ctx.fillText(
+    //   `Press "Enter" to try again`,
+    //   $canvas.width - 375,
+    //   $canvas.height - 100
+    // );
+  }
+}
+// Screen Types //
+function StartScreen() {
+  ctx.clearRect(0, 0, $canvas.width, $canvas.height);
+  if (gameState === "start") level.drawLevel(currentLevel);
+  clouds.drawSky1();
+  clouds.drawSky2();
+  clouds.drawSky3();
+  ctx.font = "20px sans-serif";
+  ctx.fillText(
+    `Press "Enter" to Start`,
+
+    $canvas.width - 400,
+    $canvas.height / 2
+  );
+  requestAnimationFrame(StartScreen);
+}
 
 function updateCanvas() {
-  //detectGround(hero.positionX);
   ctx.clearRect(0, 0, $canvas.width, $canvas.height);
   level.drawLevel(currentLevel);
   clouds.drawSky1();
   clouds.drawSky2();
   clouds.drawSky3();
-  checkGroundType();
-  heroDeath();
-  HeroMovement();
-  console.log(hero.velocityX);
-  if (hero.dead === true) return;
-
-  //jumpCheck()
-
   requestAnimationFrame(updateCanvas);
 }
-requestAnimationFrame(updateCanvas);
+
+function updateHero() {
+  checkGroundType();
+  HeroMovement();
+  heroDeath();
+  moveGround();
+  youWin();
+  requestAnimationFrame(updateHero);
+}
+
+requestAnimationFrame(StartScreen);
