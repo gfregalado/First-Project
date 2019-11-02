@@ -130,26 +130,84 @@ class map {
   drawPlatforms() {
     let img = new Image();
     img.src = "Images/map/plank.png";
+    //platform 1//
     ctx.drawImage(img, this.platformX, 180, 70, 20);
     ctx.drawImage(img, this.platformX + 70, 180, 70, 20);
     ctx.drawImage(img, this.platformX + 140, 180, 70, 20);
-
+    //platform 2//
     ctx.drawImage(img, this.platformX + 1600, 180, 70, 20);
     ctx.drawImage(img, this.platformX + 1670, 180, 70, 20);
     ctx.drawImage(img, this.platformX + 1740, 180, 70, 20);
+    //platform 3//
+    ctx.drawImage(img, this.platformX + 2300, 180, 70, 20);
+    ctx.drawImage(img, this.platformX + 2370, 180, 70, 20);
+    ctx.drawImage(img, this.platformX + 2440, 180, 70, 20);
+    //platform 4//
+    ctx.drawImage(img, this.platformX + 2600, 180, 70, 20);
+    ctx.drawImage(img, this.platformX + 2670, 180, 70, 20);
+    ctx.drawImage(img, this.platformX + 2740, 180, 70, 20);
+    //platform 5//
+    ctx.drawImage(img, this.platformX + 2900, 100, 70, 20);
+    ctx.drawImage(img, this.platformX + 2970, 100, 70, 20);
+    ctx.drawImage(img, this.platformX + 3040, 100, 70, 20);
   }
-  // drawEndGameButtonOff() {
-  //   let imgButtonOff;
-  //   imgButtonOff = new Image();
-  //   imgButtonOff.src = "Images/map/switch_red_off.png";
-  //   ctx.drawImage(imgButtonOff, this.buttonX, this.row - 25, 45, 30);
-  // }
-  // drawEndGameButtonOn() {
-  //   let imgButtonOn;
-  //   imgButtonOn = new Image();
-  //   imgButtonOn.src = "Images/map/switch_red_on.png";
-  //   ctx.drawImage(imgButtonOn, this.buttonX, this.row - 25, 45, 30);
-  // }
+}
+function checkPlatform() {
+  //platform 1//
+  if (
+    hero.positionX >= level.platformX - 30 &&
+    hero.positionX <= level.platformX + 185 &&
+    hero.positionY >= 129 &&
+    hero.positionY <= 131
+  ) {
+    hero.positionY = 130;
+    hero.velocityY = 0;
+    hero.jump = true;
+  }
+  //platform 2//
+  if (
+    hero.positionX >= level.platformX + 1570 &&
+    hero.positionX <= level.platformX + 1785 &&
+    hero.positionY >= 129 &&
+    hero.positionY <= 131
+  ) {
+    hero.positionY = 130;
+    hero.velocityY = 0;
+    hero.jump = true;
+  }
+  //platform 3//
+  if (
+    hero.positionX >= level.platformX + 2300 - 30 &&
+    hero.positionX <= level.platformX + 2400 + 185 &&
+    hero.positionY >= 129 &&
+    hero.positionY <= 131
+  ) {
+    hero.positionY = 130;
+    hero.velocityY = 0;
+    hero.jump = true;
+  }
+  //platform 4//
+  if (
+    hero.positionX >= level.platformX + 2600 - 30 &&
+    hero.positionX <= level.platformX + 2740 + 185 &&
+    hero.positionY >= 129 &&
+    hero.positionY <= 131
+  ) {
+    hero.positionY = 130;
+    hero.velocityY = 0;
+    hero.jump = true;
+  }
+  //platform 5//
+  if (
+    hero.positionX >= level.platformX + 2900 - 30 &&
+    hero.positionX <= level.platformX + 3040 + 20 &&
+    hero.positionY >= 45 &&
+    hero.positionY <= 47
+  ) {
+    hero.positionY = 46;
+    hero.velocityY = 0;
+    hero.jump = true;
+  }
 }
 
 class sky {
@@ -225,29 +283,6 @@ function Jump() {
   hero.jump = false;
 }
 
-function checkPlatform() {
-  if (
-    hero.positionX >= level.platformX - 30 &&
-    hero.positionX <= level.platformX + 185 &&
-    hero.positionY >= 129 &&
-    hero.positionY <= 131
-  ) {
-    hero.positionY = 130;
-    hero.velocityY = 0;
-    hero.jump = true;
-  }
-  if (
-    hero.positionX >= level.platformX + 1570 &&
-    hero.positionX <= level.platformX + 1785 &&
-    hero.positionY >= 129 &&
-    hero.positionY <= 131
-  ) {
-    hero.positionY = 130;
-    hero.velocityY = 0;
-    hero.jump = true;
-  }
-}
-
 // Controls //
 
 document.onkeydown = function(e) {
@@ -262,8 +297,6 @@ document.onkeydown = function(e) {
       hero.isRunningLeft = true;
       break;
     case 39: // right arrow
-      console.log("position Y" + hero.positionY);
-      console.log("position X" + hero.positionX);
       hero.isRunningRight = true;
       break;
     case 13: // Enter Key
