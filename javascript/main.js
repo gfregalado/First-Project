@@ -311,7 +311,7 @@ function HeroMovement() {
 }
 
 function moveGround() {
-  if (hero.dead != true && level.buttonX >= 450) {
+  if (hero.dead != true) {
     for (let i = 0; i < currentLevel.length; i++) {
       currentLevel[i].x -= 2;
       clouds.x -= 0.1 / 6;
@@ -319,6 +319,17 @@ function moveGround() {
       level.platformX -= 0.1 / 4;
     }
   }
+}
+let score = 0;
+function drawScore() {
+  if (hero.dead === false && frames % 10 === 0) {
+    score += 1;
+  }
+  ctx.font = "15px 'Press Start 2P'";
+  ctx.fillStyle = "white";
+  ctx.fillText(`Score: ${score}`, 400, 40);
+  console.log("frames" + frames);
+  console.log("score" + score);
 }
 
 // function youWin() {
@@ -395,11 +406,14 @@ function updateCanvas() {
   requestAnimationFrame(updateCanvas);
 }
 
+let frames = 0;
 function updateHero() {
+  frames++;
   checkGroundType();
   HeroMovement();
   heroDeath();
   moveGround();
+  drawScore();
   //youWin();
   requestAnimationFrame(updateHero);
   endScreen();
