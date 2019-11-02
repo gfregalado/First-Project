@@ -4,16 +4,20 @@ let ctx = $canvas.getContext("2d");
 
 let tileSize = $canvas.width / 10;
 let groundLevel = tileSize - 5;
+let currentLevel = [];
+let levelStart = 0;
 const images = [];
 
-for (let i = 0; i < 17; i++) {
+for (let i = 0; i < 23; i++) {
   let img = new Image();
-  img.src = "/Images/hero/Idle/0_Reaper_Man_Idle_" + i + ".png";
+  img.src = "Images/hero/Walking/0_Reaper_Man_Walking_" + i + ".png";
   images.push(img);
 }
 
 function startGame() {
+  createObstacles();
   requestAnimationFrame(updateCanvas);
+
   requestAnimationFrame(updateHero);
   gameState = "running";
 }
@@ -49,7 +53,7 @@ class player {
         this.height
       );
     this.frames++;
-    if (this.frames === 17) {
+    if (this.frames === 23) {
       this.frames = 0;
     }
   }
@@ -74,27 +78,31 @@ class Obstacle {
   }
 }
 
-let currentLevel = [];
-let levelStart = 0;
-
-for (let i = 0; i < levelOne.length; i++) {
-  if (i == 0) {
-    currentLevel.push(
-      new Obstacle(0, 0, "ground", "Images/map/groundfull.png")
-    );
-  } else if (levelOne[i] === "w") {
-    currentLevel.push(
-      new Obstacle((levelStart += tileSize), 0, "water", "Images/map/water.png")
-    );
-  } else if (levelOne[i] === "g") {
-    currentLevel.push(
-      new Obstacle(
-        (levelStart += tileSize),
-        0,
-        "ground",
-        "Images/map/groundfull.png"
-      )
-    );
+function createObstacles() {
+  for (let i = 0; i < levelOne.length; i++) {
+    if (i == 0) {
+      currentLevel.push(
+        new Obstacle(0, 0, "ground", "Images/map/groundfull.png")
+      );
+    } else if (levelOne[i] === "w") {
+      currentLevel.push(
+        new Obstacle(
+          (levelStart += tileSize),
+          0,
+          "water",
+          "Images/map/water.png"
+        )
+      );
+    } else if (levelOne[i] === "g") {
+      currentLevel.push(
+        new Obstacle(
+          (levelStart += tileSize),
+          0,
+          "ground",
+          "Images/map/groundfull.png"
+        )
+      );
+    }
   }
 }
 
@@ -103,6 +111,7 @@ class map {
     this.col = 0;
     this.row = 320 - groundLevel;
     this.buttonX = 4592 - 140;
+    this.platformX = 600;
   }
 
   drawLevel(level) {
@@ -112,6 +121,18 @@ class map {
       img.src = level[i].source;
       ctx.drawImage(img, level[i].x, this.row, tileSize, tileSize);
     }
+  }
+
+  drawPlatforms() {
+    let img = new Image();
+    img.src = "Images/map/plank.png";
+    ctx.drawImage(img, this.platformX, 180, 70, 20);
+    ctx.drawImage(img, this.platformX + 70, 180, 70, 20);
+    ctx.drawImage(img, this.platformX + 140, 180, 70, 20);
+
+    ctx.drawImage(img, this.platformX + 600, 180, 70, 20);
+    ctx.drawImage(img, this.platformX + 670, 180, 70, 20);
+    ctx.drawImage(img, this.platformX + 740, 180, 70, 20);
   }
   drawEndGameButtonOff() {
     let imgButtonOff;
@@ -134,22 +155,27 @@ class sky {
   }
 
   drawSky1() {
-    let img;
-    img = new Image();
+    let img = new Image();
     img.src = "Images/map/cloud_1.png";
     ctx.drawImage(img, this.x, this.y, tileSize * 2, tileSize);
+    ctx.drawImage(img, this.x + 1400, this.y, tileSize * 2, tileSize);
+    ctx.drawImage(img, this.x + 2000, this.y, tileSize * 2, tileSize);
+    ctx.drawImage(img, this.x + 2900, this.y, tileSize * 2, tileSize);
   }
   drawSky2() {
-    let img;
-    img = new Image();
+    let img = new Image();
     img.src = "Images/map/cloud_2.png";
-    ctx.drawImage(img, this.x + 175, this.y, tileSize * 2, tileSize);
+    ctx.drawImage(img, this.x + 500, this.y, tileSize * 2, tileSize);
+    ctx.drawImage(img, this.x + 1700, this.y, tileSize * 2, tileSize);
+    ctx.drawImage(img, this.x + 4000, this.y, tileSize * 2, tileSize);
+    ctx.drawImage(img, this.x + 4200, this.y, tileSize * 2, tileSize);
   }
   drawSky3() {
-    let img;
-    img = new Image();
+    let img = new Image();
     img.src = "Images/map/cloud_3.png";
     ctx.drawImage(img, this.x + 900, this.y, tileSize * 2, tileSize);
+    ctx.drawImage(img, this.x + 2300, this.y, tileSize * 2, tileSize);
+    ctx.drawImage(img, this.x + 3200, this.y, tileSize * 2, tileSize);
   }
 }
 
@@ -195,15 +221,35 @@ function Jump() {
   hero.jump = false;
 }
 
+function checkPlatform() {
+  if (
+    hero.positionX >= level.platformX - 30 &&
+    hero.positionX <= level.platformX + 185 &&
+    hero.positionY >= 129 &&
+    hero.positionY <= 131
+  ) {
+    hero.positionY = 130;
+    hero.velocityY = 0;
+    hero.jump = true;
+  }
+  if (
+    hero.positionX >= level.platformX + 570 &&
+    hero.positionX <= level.platformX + 785 &&
+    hero.positionY >= 129 &&
+    hero.positionY <= 131
+  ) {
+    hero.positionY = 130;
+    hero.velocityY = 0;
+    hero.jump = true;
+  }
+}
+
 // Controls //
 
 document.onkeydown = function(e) {
   switch (e.keyCode) {
     case 32: // space
       //Jump Action //
-      console.log(level.buttonX);
-      console.log("hero position X" + hero.positionX);
-      console.log("hero position Y" + hero.positionY);
       if (hero.jump === true) {
         Jump();
       }
@@ -212,6 +258,8 @@ document.onkeydown = function(e) {
       hero.isRunningLeft = true;
       break;
     case 39: // right arrow
+      console.log("position Y" + hero.positionY);
+      console.log("position X" + hero.positionX);
       hero.isRunningRight = true;
       break;
     case 13: // Enter Key
@@ -261,9 +309,10 @@ function HeroMovement() {
 function moveGround() {
   if (hero.dead != true && level.buttonX >= 450) {
     for (let i = 0; i < currentLevel.length; i++) {
-      currentLevel[i].x -= 1.5;
+      currentLevel[i].x -= 2;
       clouds.x -= 0.1 / 6;
       level.buttonX -= 0.1 / 4;
+      level.platformX -= 0.1 / 4;
     }
   }
 }
@@ -285,22 +334,12 @@ function heroDeath() {
   if (hero.dead === true) {
     hero.gravity = 0.3;
     hero.friction = 0.9;
-    // ctx.fillStyle = "rgb(25, 25, 25, 0.3)";
-    // ctx.fillRect(0, 0, $canvas.width, $canvas.height);
-    // ctx.font = "50px sans-serif";
-    // ctx.fillText("Game Over", $canvas.width - 400, $canvas.height / 2);
-    // ctx.font = "15px sans-serif";
-    // ctx.fillText(
-    //   `Press "Enter" to try again`,
-    //   $canvas.width - 375,
-    //   $canvas.height - 100
-    // );
   }
 }
 // Screen Types //
 function StartScreen() {
   ctx.clearRect(0, 0, $canvas.width, $canvas.height);
-  if (gameState === "start") level.drawLevel(currentLevel);
+  level.drawLevel(currentLevel);
   clouds.drawSky1();
   clouds.drawSky2();
   clouds.drawSky3();
@@ -310,7 +349,6 @@ function StartScreen() {
   ctx.fillStyle = "white";
   ctx.fillText(
     `Press "Enter" to Start`,
-
     $canvas.width - 435,
     $canvas.height / 2
   );
@@ -349,6 +387,7 @@ function updateCanvas() {
   clouds.drawSky1();
   clouds.drawSky2();
   clouds.drawSky3();
+  level.drawPlatforms();
   requestAnimationFrame(updateCanvas);
 }
 
@@ -360,10 +399,8 @@ function updateHero() {
   youWin();
   requestAnimationFrame(updateHero);
   endScreen();
-  console.log(gameState);
+  checkPlatform();
 }
-
-requestAnimationFrame(StartScreen);
 
 function restartGame() {
   ctx.clearRect(0, 0, $canvas.width, $canvas.height);
@@ -376,3 +413,5 @@ let gameState = "start";
 let hero = new player(100, 0);
 let clouds = new sky(100, 50);
 let level = new map();
+
+requestAnimationFrame(StartScreen);
