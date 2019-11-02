@@ -17,8 +17,8 @@ for (let i = 0; i < 23; i++) {
 function startGame() {
   createObstacles();
   requestAnimationFrame(updateCanvas);
-
   requestAnimationFrame(updateHero);
+  backgroundMusic();
   gameState = "running";
 }
 
@@ -68,6 +68,10 @@ class player {
   }
 }
 
+function backgroundMusic() {
+  let backgroundMusic = new Audio("sounds/backgroundMusic.mp3");
+  backgroundMusic.play();
+}
 //Background & Levels //
 
 // Background Constructor //
@@ -130,22 +134,22 @@ class map {
     ctx.drawImage(img, this.platformX + 70, 180, 70, 20);
     ctx.drawImage(img, this.platformX + 140, 180, 70, 20);
 
-    ctx.drawImage(img, this.platformX + 600, 180, 70, 20);
-    ctx.drawImage(img, this.platformX + 670, 180, 70, 20);
-    ctx.drawImage(img, this.platformX + 740, 180, 70, 20);
+    ctx.drawImage(img, this.platformX + 1600, 180, 70, 20);
+    ctx.drawImage(img, this.platformX + 1670, 180, 70, 20);
+    ctx.drawImage(img, this.platformX + 1740, 180, 70, 20);
   }
-  drawEndGameButtonOff() {
-    let imgButtonOff;
-    imgButtonOff = new Image();
-    imgButtonOff.src = "Images/map/switch_red_off.png";
-    ctx.drawImage(imgButtonOff, this.buttonX, this.row - 25, 45, 30);
-  }
-  drawEndGameButtonOn() {
-    let imgButtonOn;
-    imgButtonOn = new Image();
-    imgButtonOn.src = "Images/map/switch_red_on.png";
-    ctx.drawImage(imgButtonOn, this.buttonX, this.row - 25, 45, 30);
-  }
+  // drawEndGameButtonOff() {
+  //   let imgButtonOff;
+  //   imgButtonOff = new Image();
+  //   imgButtonOff.src = "Images/map/switch_red_off.png";
+  //   ctx.drawImage(imgButtonOff, this.buttonX, this.row - 25, 45, 30);
+  // }
+  // drawEndGameButtonOn() {
+  //   let imgButtonOn;
+  //   imgButtonOn = new Image();
+  //   imgButtonOn.src = "Images/map/switch_red_on.png";
+  //   ctx.drawImage(imgButtonOn, this.buttonX, this.row - 25, 45, 30);
+  // }
 }
 
 class sky {
@@ -233,8 +237,8 @@ function checkPlatform() {
     hero.jump = true;
   }
   if (
-    hero.positionX >= level.platformX + 570 &&
-    hero.positionX <= level.platformX + 785 &&
+    hero.positionX >= level.platformX + 1570 &&
+    hero.positionX <= level.platformX + 1785 &&
     hero.positionY >= 129 &&
     hero.positionY <= 131
   ) {
@@ -317,18 +321,18 @@ function moveGround() {
   }
 }
 
-function youWin() {
-  if (
-    level.buttonX >= 448 &&
-    level.buttonX <= 450 &&
-    hero.positionX >= 425 &&
-    hero.positionX <= 457 &&
-    hero.positionY >= 188 &&
-    hero.positionY <= 195
-  )
-    level.drawEndGameButtonOn();
-  else level.drawEndGameButtonOff();
-}
+// function youWin() {
+//   if (
+//     level.buttonX >= 448 &&
+//     level.buttonX <= 450 &&
+//     hero.positionX >= 425 &&
+//     hero.positionX <= 457 &&
+//     hero.positionY >= 188 &&
+//     hero.positionY <= 195
+//   )
+//     level.drawEndGameButtonOn();
+//   else level.drawEndGameButtonOff();
+// }
 
 function heroDeath() {
   if (hero.dead === true) {
@@ -376,7 +380,7 @@ function endScreen() {
     HeroMovement();
     heroDeath();
     moveGround();
-    youWin();
+    //youWin();
     requestAnimationFrame(endScreen);
   }
 }
@@ -396,7 +400,7 @@ function updateHero() {
   HeroMovement();
   heroDeath();
   moveGround();
-  youWin();
+  //youWin();
   requestAnimationFrame(updateHero);
   endScreen();
   checkPlatform();
