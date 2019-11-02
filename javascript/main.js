@@ -178,7 +178,7 @@ function checkPlatform() {
   //platform 3//
   if (
     hero.positionX >= level.platformX + 2300 - 30 &&
-    hero.positionX <= level.platformX + 2400 + 185 &&
+    hero.positionX <= level.platformX + 2480 &&
     hero.positionY >= 129 &&
     hero.positionY <= 131
   ) {
@@ -189,7 +189,7 @@ function checkPlatform() {
   //platform 4//
   if (
     hero.positionX >= level.platformX + 2600 - 30 &&
-    hero.positionX <= level.platformX + 2740 + 185 &&
+    hero.positionX <= level.platformX + 2780 &&
     hero.positionY >= 129 &&
     hero.positionY <= 131
   ) {
@@ -344,7 +344,7 @@ function HeroMovement() {
 }
 
 function moveGround() {
-  if (hero.dead != true) {
+  if (hero.dead != true && score >= 0 && score < 50) {
     for (let i = 0; i < currentLevel.length; i++) {
       currentLevel[i].x -= 2;
       clouds.x -= 0.1 / 6;
@@ -352,7 +352,16 @@ function moveGround() {
       level.platformX -= 0.1 / 4;
     }
   }
+  if (hero.dead != true && score >= 50 && score < 100) {
+    for (let i = 0; i < currentLevel.length; i++) {
+      currentLevel[i].x -= 4;
+      clouds.x -= 0.2 / 3;
+      level.buttonX -= 0.1 / 2;
+      level.platformX -= 0.1 / 2;
+    }
+  }
 }
+
 let score = 0;
 function drawScore() {
   if (hero.dead === false && frames % 10 === 0) {
@@ -360,7 +369,7 @@ function drawScore() {
   }
   ctx.font = "15px 'Press Start 2P'";
   ctx.fillStyle = "white";
-  ctx.fillText(`Score: ${score}`, 400, 40);
+  ctx.fillText(`Score: ${score}`, 380, 40);
   console.log("frames" + frames);
   console.log("score" + score);
 }
