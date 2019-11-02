@@ -2,12 +2,20 @@
 let $canvas = document.getElementById("myCanvas");
 let ctx = $canvas.getContext("2d");
 
+let tileSize = $canvas.width / 10;
+let groundLevel = tileSize - 5;
 const images = [];
 
 for (let i = 0; i < 17; i++) {
   let img = new Image();
   img.src = "/Images/hero/Idle/0_Reaper_Man_Idle_" + i + ".png";
   images.push(img);
+}
+
+function startGame() {
+  requestAnimationFrame(updateCanvas);
+  requestAnimationFrame(updateHero);
+  gameState = "running";
 }
 
 class player {
@@ -57,12 +65,6 @@ class player {
 }
 
 //Background & Levels //
-
-// Constants //
-let numberOfTiles = 10;
-let tileSize = $canvas.width / numberOfTiles;
-let groundLevel = tileSize - 5;
-let gameState = "start";
 
 // Background Constructor //
 
@@ -125,8 +127,6 @@ class map {
   }
 }
 
-let level = new map();
-
 class sky {
   constructor(x, y) {
     this.x = x;
@@ -152,11 +152,6 @@ class sky {
     ctx.drawImage(img, this.x + 900, this.y, tileSize * 2, tileSize);
   }
 }
-
-// Creating a Player & World //
-
-let hero = new player(100, 0);
-let clouds = new sky(100, 50);
 
 // Movement and behaviour //
 
@@ -221,9 +216,7 @@ document.onkeydown = function(e) {
       break;
     case 13: // Enter Key
       if (gameState === "start") {
-        requestAnimationFrame(updateCanvas);
-        requestAnimationFrame(updateHero);
-        gameState = "running";
+        startGame();
       } else if (gameState === "restart") {
         ctx.clearRect(0, 0, $canvas.width, $canvas.height);
         requestAnimationFrame(updateCanvas);
@@ -311,7 +304,10 @@ function StartScreen() {
   clouds.drawSky1();
   clouds.drawSky2();
   clouds.drawSky3();
+  ctx.fillStyle = "rgb(25, 25, 25, 0.1)";
+  ctx.fillRect(0, 0, $canvas.width, $canvas.height);
   ctx.font = "14px 'Press Start 2P'";
+  ctx.fillStyle = "white";
   ctx.fillText(
     `Press "Enter" to Start`,
 
@@ -328,6 +324,9 @@ function endScreen() {
     clouds.drawSky1();
     clouds.drawSky2();
     clouds.drawSky3();
+    ctx.fillStyle = "rgb(25, 25, 25, 0.1)";
+    ctx.fillRect(0, 0, $canvas.width, $canvas.height);
+    ctx.fillStyle = "white";
     ctx.font = "25px 'Press Start 2P'";
     ctx.fillText(
       `Game Over`,
@@ -365,3 +364,15 @@ function updateHero() {
 }
 
 requestAnimationFrame(StartScreen);
+
+function restartGame() {
+  ctx.clearRect(0, 0, $canvas.width, $canvas.height);
+}
+
+// Creating a Player & World //
+
+let gameState = "start";
+
+let hero = new player(100, 0);
+let clouds = new sky(100, 50);
+let level = new map();
