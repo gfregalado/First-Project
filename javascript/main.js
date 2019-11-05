@@ -178,7 +178,7 @@ function checkPlatform() {
   //platform 3//
   if (
     hero.positionX >= level.platformX + 2300 - 30 &&
-    hero.positionX <= level.platformX + 2400 + 185 &&
+    hero.positionX <= level.platformX + 2300 + 185 &&
     hero.positionY >= 129 &&
     hero.positionY <= 131
   ) {
@@ -189,7 +189,7 @@ function checkPlatform() {
   //platform 4//
   if (
     hero.positionX >= level.platformX + 2600 - 30 &&
-    hero.positionX <= level.platformX + 2740 + 185 &&
+    hero.positionX <= level.platformX + 2600 + 185 &&
     hero.positionY >= 129 &&
     hero.positionY <= 131
   ) {
@@ -200,7 +200,7 @@ function checkPlatform() {
   //platform 5//
   if (
     hero.positionX >= level.platformX + 2900 - 30 &&
-    hero.positionX <= level.platformX + 3040 + 20 &&
+    hero.positionX <= level.platformX + 2900 + 185 &&
     hero.positionY >= 45 &&
     hero.positionY <= 47
   ) {
@@ -344,12 +344,28 @@ function HeroMovement() {
 }
 
 function moveGround() {
-  if (hero.dead != true) {
+  if (hero.dead != true && score >= 0 && score <= 50) {
     for (let i = 0; i < currentLevel.length; i++) {
       currentLevel[i].x -= 2;
-      clouds.x -= 0.1 / 6;
+      clouds.x -= 0.1 / 10;
+      level.buttonX -= 0.1 / 6;
+      level.platformX -= 0.1 / 6;
+    }
+  }
+  if (hero.dead != true && score > 50 && score <= 100) {
+    for (let i = 0; i < currentLevel.length; i++) {
+      currentLevel[i].x -= 3;
+      clouds.x -= 0.1 / 8;
       level.buttonX -= 0.1 / 4;
       level.platformX -= 0.1 / 4;
+    }
+  }
+  if (hero.dead != true && score > 100 && score <= 200) {
+    for (let i = 0; i < currentLevel.length; i++) {
+      currentLevel[i].x -= 5;
+      clouds.x -= 0.1 / 6;
+      level.buttonX -= 0.1 / 3;
+      level.platformX -= 0.1 / 3;
     }
   }
 }
@@ -361,22 +377,7 @@ function drawScore() {
   ctx.font = "15px 'Press Start 2P'";
   ctx.fillStyle = "white";
   ctx.fillText(`Score: ${score}`, 400, 40);
-  console.log("frames" + frames);
-  console.log("score" + score);
 }
-
-// function youWin() {
-//   if (
-//     level.buttonX >= 448 &&
-//     level.buttonX <= 450 &&
-//     hero.positionX >= 425 &&
-//     hero.positionX <= 457 &&
-//     hero.positionY >= 188 &&
-//     hero.positionY <= 195
-//   )
-//     level.drawEndGameButtonOn();
-//   else level.drawEndGameButtonOff();
-// }
 
 function heroDeath() {
   if (hero.dead === true) {
@@ -420,11 +421,18 @@ function endScreen() {
       $canvas.width - 390,
       $canvas.height / 2
     );
+    ctx.fillStyle = "white";
+    ctx.font = "12px 'Press Start 2P'";
+    ctx.fillText(
+      `You scored ${score} points`,
+
+      $canvas.width - 395,
+      210
+    );
     checkGroundType();
     HeroMovement();
     heroDeath();
     moveGround();
-    //youWin();
     requestAnimationFrame(endScreen);
   }
 }
@@ -447,7 +455,6 @@ function updateHero() {
   heroDeath();
   moveGround();
   drawScore();
-  //youWin();
   requestAnimationFrame(updateHero);
   endScreen();
   checkPlatform();
