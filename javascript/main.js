@@ -178,7 +178,11 @@ function checkPlatform() {
   //platform 3//
   if (
     hero.positionX >= level.platformX + 2300 - 30 &&
+<<<<<<< HEAD
     hero.positionX <= level.platformX + 2300 + 185 &&
+=======
+    hero.positionX <= level.platformX + 2480 &&
+>>>>>>> 44ce45af4d84928735ca3693e13c8693e343a62a
     hero.positionY >= 129 &&
     hero.positionY <= 131
   ) {
@@ -189,7 +193,11 @@ function checkPlatform() {
   //platform 4//
   if (
     hero.positionX >= level.platformX + 2600 - 30 &&
+<<<<<<< HEAD
     hero.positionX <= level.platformX + 2600 + 185 &&
+=======
+    hero.positionX <= level.platformX + 2780 &&
+>>>>>>> 44ce45af4d84928735ca3693e13c8693e343a62a
     hero.positionY >= 129 &&
     hero.positionY <= 131
   ) {
@@ -344,7 +352,11 @@ function HeroMovement() {
 }
 
 function moveGround() {
+<<<<<<< HEAD
   if (hero.dead != true && score >= 0 && score <= 50) {
+=======
+  if (hero.dead != true && score >= 0 && score < 50) {
+>>>>>>> 44ce45af4d84928735ca3693e13c8693e343a62a
     for (let i = 0; i < currentLevel.length; i++) {
       currentLevel[i].x -= 2;
       clouds.x -= 0.1 / 10;
@@ -360,15 +372,25 @@ function moveGround() {
       level.platformX -= 0.1 / 4;
     }
   }
+<<<<<<< HEAD
   if (hero.dead != true && score > 100 && score <= 200) {
     for (let i = 0; i < currentLevel.length; i++) {
       currentLevel[i].x -= 5;
       clouds.x -= 0.1 / 6;
       level.buttonX -= 0.1 / 3;
       level.platformX -= 0.1 / 3;
+=======
+  if (hero.dead != true && score >= 50 && score < 100) {
+    for (let i = 0; i < currentLevel.length; i++) {
+      currentLevel[i].x -= 4;
+      clouds.x -= 0.2 / 3;
+      level.buttonX -= 0.1 / 2;
+      level.platformX -= 0.1 / 2;
+>>>>>>> 44ce45af4d84928735ca3693e13c8693e343a62a
     }
   }
 }
+
 let score = 0;
 function drawScore() {
   if (hero.dead === false && frames % 10 === 0) {
@@ -376,7 +398,13 @@ function drawScore() {
   }
   ctx.font = "15px 'Press Start 2P'";
   ctx.fillStyle = "white";
+<<<<<<< HEAD
   ctx.fillText(`Score: ${score}`, 400, 40);
+=======
+  ctx.fillText(`Score: ${score}`, 380, 40);
+  console.log("frames" + frames);
+  console.log("score" + score);
+>>>>>>> 44ce45af4d84928735ca3693e13c8693e343a62a
 }
 
 function heroDeath() {
